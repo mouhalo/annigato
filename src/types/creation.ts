@@ -68,11 +68,12 @@ export interface CreationState {
   selectedColors: string[]
   cakeMessage: string
 
-  // Generation IA
+  // Generation IA (3 slots)
   aiPrompt: string
-  generatedImageUrl: string | null
-  isGenerating: boolean
-  generationError: string | null
+  generatedImages: (string | null)[]
+  generatingSlot: number | null
+  generationErrors: (string | null)[]
+  selectedImageIndex: number | null
 
   // Chat IA
   isChatOpen: boolean
