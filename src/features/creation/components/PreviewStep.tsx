@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { Wand2, Loader2, RefreshCw, AlertTriangle, Sparkles, Check } from 'lucide-react'
+import { Wand2, Loader2, RefreshCw, AlertTriangle, Sparkles, Check, ImageIcon } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '../../../store/hooks'
 import {
   selectCreation,
@@ -7,11 +7,250 @@ import {
   setGeneratedImage,
   setGenerationError,
   setAiPrompt,
+  selectImage,
 } from '../creationSlice'
 import { generateCakeImage, buildCakePrompt } from '../../../services/imageGeneration'
 import { selectActiveProviderConfig } from '../../settings/settingsSlice'
 import { cakeThemes, cakeBases, cakeSizes, cakeFlavors, cakeDecorations, cakeColors } from '../../../data/creationOptions'
 
+// =========================================================
+// ImageSlot — a single generation slot with 5 visual states
+// =========================================================
+const ImageSlot: React.FC<{
+  index: number
+  image: string | null
+  isGenerating: boolean
+  error: string | null
+  isSelected: boolean
+  allGenerated: boolean
+  anyGenerating: boolean
+  onGenerate: (index: number) => void
+  onSelect: (index: number) => void
+}> = ({ index, image, isGenerating, error, isSelected, allGenerated, anyGenerating, onGenerate, onSelect }) => {
+  const [imageLoaded, setImageLoaded] = useState(false)
+
+  const slotLabel = index + 1
+
+  // Determine state
+  const hasImage = image !== null && !error
+  const showImage = hasImage && !isGenerating
+
+  // --- Container ---
+  let containerClasses = 'relative rounded-2xl overflow-hidden transition-all duration-300 aspect-square flex flex-col items-center justify-center '
+
+  if (isSelected && showImage) {
+    // Selected state
+    containerClasses += 'border-4 border-amber-400 shadow-lg shadow-amber-200/50 bg-white'
+  } else if (showImage) {
+    // Generated state
+    containerClasses += 'border-2 border-white shadow-xl bg-white'
+  } else if (isGenerating) {
+    // Generating state
+    containerClasses += 'border-2 border-dashed border-amber-300 bg-amber-50/50'
+  } else if (error) {
+    // Error state
+    containerClasses += 'border-2 border-dashed border-red-300 bg-red-50/50'
+  } else {
+    // Empty state
+    containerClasses += 'border-2 border-dashed border-gray-300 bg-gray-50'
+  }
+
+  // --- Button ---
+  const renderButton = () => {
+    if (isGenerating) {
+      // Generating — disabled grayed button with loader
+      return (
+        <button
+          disabled
+          className="
+            mt-3 flex items-center justify-center gap-2
+            px-4 py-2.5 rounded-xl
+            bg-gray-200 text-gray-400
+            font-bold text-sm
+            cursor-not-allowed
+            w-full
+          "
+        >
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span>Creation...</span>
+        </button>
+      )
+    }
+
+    if (error) {
+      // Error — retry button (same gradient as generate)
+      return (
+        <button
+          onClick={() => onGenerate(index)}
+          disabled={anyGenerating}
+          className={`
+            mt-3 flex items-center justify-center gap-2
+            px-4 py-2.5 rounded-xl
+            font-bold text-sm
+            w-full transition-all duration-200
+            ${anyGenerating
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-gradient-to-r from-amber-400 via-orange-400 to-pink-500 text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95'}
+          `}
+        >
+          <RefreshCw className="w-4 h-4" />
+          <span>Reessayer {slotLabel}</span>
+        </button>
+      )
+    }
+
+    if (showImage) {
+      // Generated / Selected — "Choix X" button
+      const isDisabled = !allGenerated
+      if (isSelected) {
+        return (
+          <button
+            disabled
+            className="
+              mt-3 flex items-center justify-center gap-2
+              px-4 py-2.5 rounded-xl
+              bg-gradient-to-r from-amber-400 to-amber-500
+              text-white font-bold text-sm
+              w-full
+              cursor-default
+            "
+          >
+            <Check className="w-4 h-4" />
+            <span>Choix {slotLabel}</span>
+          </button>
+        )
+      }
+      return (
+        <button
+          onClick={() => onSelect(index)}
+          disabled={isDisabled}
+          className={`
+            mt-3 flex items-center justify-center gap-2
+            px-4 py-2.5 rounded-xl
+            font-bold text-sm
+            w-full transition-all duration-200
+            ${isDisabled
+              ? 'border-2 border-gray-200 text-gray-300 bg-white cursor-not-allowed'
+              : 'border-2 border-amber-300 text-amber-600 bg-white hover:bg-amber-50 hover:border-amber-400 hover:scale-[1.02] active:scale-95'}
+          `}
+        >
+          <span>Choix {slotLabel}</span>
+        </button>
+      )
+    }
+
+    // Empty — "Generer X" button (orange/pink gradient)
+    return (
+      <button
+        onClick={() => onGenerate(index)}
+        disabled={anyGenerating}
+        className={`
+          mt-3 flex items-center justify-center gap-2
+          px-4 py-2.5 rounded-xl
+          font-bold text-sm
+          w-full transition-all duration-200
+          ${anyGenerating
+            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            : 'bg-gradient-to-r from-amber-400 via-orange-400 to-pink-500 text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95'}
+        `}
+      >
+        <Wand2 className="w-4 h-4" />
+        <span>Generer {slotLabel}</span>
+      </button>
+    )
+  }
+
+  // --- Content ---
+  const renderContent = () => {
+    if (isGenerating) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-3 p-4">
+          <div className="relative">
+            <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-xl">🎂</span>
+            </div>
+          </div>
+          <p className="text-sm font-bold text-amber-600 animate-pulse">Creation...</p>
+          <p className="text-xs text-gray-400 text-center">Notre chef patissier IA prepare ton gateau !</p>
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-2 p-4">
+          <AlertTriangle className="w-10 h-10 text-red-400" />
+          <p className="text-sm font-semibold text-red-600">Oups !</p>
+          <p className="text-xs text-red-400 text-center line-clamp-2">{error}</p>
+        </div>
+      )
+    }
+
+    if (showImage) {
+      return (
+        <div className="relative w-full h-full">
+          {/* Image loading placeholder */}
+          {!imageLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+              <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+            </div>
+          )}
+          <img
+            src={image!}
+            alt={`Gateau version ${slotLabel}`}
+            className={`w-full h-full object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageLoaded(true)}
+          />
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 to-transparent" />
+          {/* Selected badge */}
+          {isSelected && (
+            <div className="absolute top-2 right-2 bg-amber-400 text-white rounded-full p-1.5 shadow-lg">
+              <Check className="w-4 h-4" />
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    // Empty state
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 p-4">
+        <ImageIcon className="w-12 h-12 text-gray-300" />
+        <p className="text-xs text-gray-400 font-medium">Version {slotLabel}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col">
+      <div className={containerClasses}>
+        {renderContent()}
+      </div>
+      {renderButton()}
+    </div>
+  )
+}
+
+// =========================================================
+// SummaryRow — small helper for summary display
+// =========================================================
+const SummaryRow: React.FC<{ icon: string; label: string; value: string }> = ({ icon, label, value }) => (
+  <div className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-b-0">
+    <span className="text-xl">{icon}</span>
+    <div className="flex-1">
+      <span className="text-xs text-gray-400 font-medium">{label}</span>
+      <p className="text-sm text-gray-700 font-semibold">{value}</p>
+    </div>
+    <Check className="w-4 h-4 text-green-400" />
+  </div>
+)
+
+// =========================================================
+// PreviewStep — main component
+// =========================================================
 const PreviewStep: React.FC = () => {
   const dispatch = useAppDispatch()
   const creation = useAppSelector(selectCreation)
@@ -27,9 +266,10 @@ const PreviewStep: React.FC = () => {
     selectedDecorations,
     selectedColors,
     cakeMessage,
-    isGenerating,
-    generatedImageUrl,
-    generationError,
+    generatedImages,
+    generatingSlot,
+    generationErrors,
+    selectedImageIndex,
   } = creation
 
   // Resolve labels for display
@@ -41,7 +281,23 @@ const PreviewStep: React.FC = () => {
   const decoObjs = cakeDecorations.filter(d => selectedDecorations.includes(d.id))
   const colorObjs = cakeColors.filter(c => selectedColors.includes(c.id))
 
-  const handleGenerate = useCallback(async () => {
+  // Derived state
+  const anyGenerating = generatingSlot !== null
+  const allGenerated = generatedImages.every(img => img !== null) && generationErrors.every(err => err === null)
+
+  // Instruction text
+  const getInstructionText = (): string => {
+    if (selectedImageIndex !== null) {
+      return 'Super choix ! Clique sur Terminer pour valider.'
+    }
+    if (allGenerated) {
+      return 'Clique sur ton gateau prefere pour le selectionner !'
+    }
+    return 'Genere 3 versions de ton gateau, puis choisis ta preferee !'
+  }
+
+  // Generate handler — takes a slot index
+  const handleGenerate = useCallback(async (slotIndex: number) => {
     // Build prompt from selections
     const prompt = buildCakePrompt({
       theme: themeObj?.label,
@@ -54,17 +310,23 @@ const PreviewStep: React.FC = () => {
     })
 
     dispatch(setAiPrompt(prompt))
-    dispatch(setGenerating(true))
+    dispatch(setGenerating(slotIndex))
 
     try {
       const result = await generateCakeImage({ prompt }, providerConfig)
-      dispatch(setGeneratedImage(result.imageUrl))
+      dispatch(setGeneratedImage({ index: slotIndex, url: result.imageUrl }))
     } catch (err) {
-      dispatch(setGenerationError(
-        err instanceof Error ? err.message : 'Une erreur est survenue lors de la generation'
-      ))
+      dispatch(setGenerationError({
+        index: slotIndex,
+        error: err instanceof Error ? err.message : 'Une erreur est survenue lors de la generation',
+      }))
     }
-  }, [dispatch, themeObj, baseObj, shapeObj, flavorObj, decoObjs, colorObjs, cakeMessage])
+  }, [dispatch, themeObj, baseObj, shapeObj, flavorObj, decoObjs, colorObjs, cakeMessage, providerConfig])
+
+  // Select handler
+  const handleSelect = useCallback((index: number) => {
+    dispatch(selectImage(index))
+  }, [dispatch])
 
   return (
     <div className="px-4 py-6">
@@ -145,135 +407,32 @@ const PreviewStep: React.FC = () => {
         )}
       </div>
 
-      {/* Generate button / Loading / Result */}
-      <GenerateSection
-        generatedImageUrl={generatedImageUrl}
-        isGenerating={isGenerating}
-        generationError={generationError}
-        onGenerate={handleGenerate}
-        onImageError={() => dispatch(setGenerationError('L\'image n\'a pas pu etre chargee. Reessaie !'))}
-      />
+      {/* Instruction text */}
+      <div className="text-center mb-4">
+        <p className="text-sm font-semibold text-gray-600 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl px-4 py-3 inline-block">
+          {getInstructionText()}
+        </p>
+      </div>
+
+      {/* 3 Image Slots */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[0, 1, 2].map((slotIndex) => (
+          <ImageSlot
+            key={slotIndex}
+            index={slotIndex}
+            image={generatedImages[slotIndex]}
+            isGenerating={generatingSlot === slotIndex}
+            error={generationErrors[slotIndex]}
+            isSelected={selectedImageIndex === slotIndex}
+            allGenerated={allGenerated}
+            anyGenerating={anyGenerating}
+            onGenerate={handleGenerate}
+            onSelect={handleSelect}
+          />
+        ))}
+      </div>
     </div>
   )
 }
-
-// Image generation section with loading and error states
-const GenerateSection: React.FC<{
-  generatedImageUrl: string | null
-  isGenerating: boolean
-  generationError: string | null
-  onGenerate: () => void
-  onImageError: () => void
-}> = ({ generatedImageUrl, isGenerating, generationError, onGenerate, onImageError }) => {
-  const [imageLoaded, setImageLoaded] = useState(false)
-  const [imageLoadError, setImageLoadError] = useState(false)
-
-  const showImage = generatedImageUrl && !isGenerating
-  const showLoading = isGenerating || (showImage && !imageLoaded && !imageLoadError)
-
-  return (
-    <div className="flex flex-col items-center">
-      {/* Generated image */}
-      {showImage && (
-        <div className={`mb-6 w-full max-w-sm transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
-          <div className="relative rounded-2xl overflow-hidden shadow-xl border-4 border-white">
-            <img
-              src={generatedImageUrl}
-              alt="Ton gateau genere par IA"
-              className="w-full h-auto"
-              onLoad={() => setImageLoaded(true)}
-              onError={() => {
-                setImageLoadError(true)
-                onImageError()
-              }}
-            />
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 to-transparent" />
-          </div>
-          <p className="text-center mt-3 text-sm text-gray-500">
-            Voila ton gateau ! Il est magnifique non ?
-          </p>
-        </div>
-      )}
-
-      {/* Loading state */}
-      {showLoading && (
-        <div className="mb-6 flex flex-col items-center gap-4 py-12">
-          <div className="relative">
-            <Loader2 className="w-16 h-16 text-amber-400 animate-spin" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl">🎂</span>
-            </div>
-          </div>
-          <p className="text-lg font-bold text-amber-600 animate-pulse">
-            Creation en cours...
-          </p>
-          <p className="text-sm text-gray-400">
-            {isGenerating
-              ? 'Notre chef patissier IA prepare ton gateau !'
-              : 'Chargement de l\'image... patience !'}
-          </p>
-        </div>
-      )}
-
-      {/* Error state */}
-      {generationError && !isGenerating && (
-        <div className="mb-6 bg-red-50 rounded-2xl p-4 flex items-start gap-3 max-w-sm w-full">
-          <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-red-700 font-semibold text-sm">Oups !</p>
-            <p className="text-red-500 text-xs mt-1">{generationError}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Generate / Regenerate button */}
-      {!isGenerating && !(showImage && !imageLoaded && !imageLoadError) && (
-        <button
-          onClick={() => {
-            setImageLoaded(false)
-            setImageLoadError(false)
-            onGenerate()
-          }}
-          className="
-            flex items-center gap-3
-            px-8 py-4 rounded-2xl
-            bg-gradient-to-r from-amber-400 via-orange-400 to-pink-500
-            text-white font-bold text-lg
-            shadow-lg shadow-orange-300/40
-            hover:shadow-xl hover:shadow-orange-300/50
-            hover:scale-105
-            active:scale-95
-            transition-all duration-300
-            min-h-[56px]
-          "
-        >
-          {generatedImageUrl && imageLoaded ? (
-            <>
-              <RefreshCw className="w-6 h-6" />
-              <span>Regenerer mon gateau !</span>
-            </>
-          ) : (
-            <>
-              <Wand2 className="w-6 h-6" />
-              <span>Generer mon gateau !</span>
-            </>
-          )}
-        </button>
-      )}
-    </div>
-  )
-}
-
-// Small helper component for summary rows
-const SummaryRow: React.FC<{ icon: string; label: string; value: string }> = ({ icon, label, value }) => (
-  <div className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-b-0">
-    <span className="text-xl">{icon}</span>
-    <div className="flex-1">
-      <span className="text-xs text-gray-400 font-medium">{label}</span>
-      <p className="text-sm text-gray-700 font-semibold">{value}</p>
-    </div>
-    <Check className="w-4 h-4 text-green-400" />
-  </div>
-)
 
 export default PreviewStep
