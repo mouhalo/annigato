@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Heart, Sparkles, Star, User, ShoppingCart } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '../store/hooks'
 import { toggleCart, selectIsCartOpen } from '../features/cart/cartSlice'
 import {
@@ -98,6 +98,7 @@ const AnimatedBackground: React.FC = () => {
 const AnnigatoHomepage: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState<number>(0)
 
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const filteredCakes = useAppSelector(selectFilteredCatalog)
   const selectedCategory = useAppSelector(selectSelectedCategory)
@@ -281,7 +282,7 @@ const AnnigatoHomepage: React.FC = () => {
 
         {/* Bouton CTA principal */}
         <div className="text-center mt-8 sm:mt-10 md:mt-12">
-          <button className="group relative bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 text-white text-sm sm:text-base md:text-xl lg:text-2xl font-bold py-3 sm:py-4 md:py-5 lg:py-6 px-6 sm:px-8 md:px-10 lg:px-12 rounded-full shadow-2xl hover:scale-105 sm:hover:scale-110 transition-all duration-300">
+          <button onClick={() => navigate('/creer')} className="group relative bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 text-white text-sm sm:text-base md:text-xl lg:text-2xl font-bold py-3 sm:py-4 md:py-5 lg:py-6 px-6 sm:px-8 md:px-10 lg:px-12 rounded-full shadow-2xl hover:scale-105 sm:hover:scale-110 transition-all duration-300">
             <span className="flex items-center gap-2 sm:gap-3">
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:rotate-180 transition-transform duration-500" />
               <span className="hidden sm:inline">Creer mon propre gateau magique !</span>

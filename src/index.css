@@ -50,6 +50,12 @@ code {
   }
 }
 
+/* Animation slide-up pour le chat */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 /* Scrollbar personnalisee */
 ::-webkit-scrollbar {
   width: 8px;
