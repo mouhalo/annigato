@@ -88,7 +88,7 @@ export interface ChatMessage {
 }
 
 // === Service de generation d'images ===
-export type ImageProvider = 'pollinations' | 'replicate' | 'stability'
+export type ImageProvider = 'huggingface' | 'pollinations' | 'placeholder' | 'replicate' | 'stability'
 
 export interface ImageGenerationRequest {
   prompt: string

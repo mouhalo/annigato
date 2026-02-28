@@ -8,6 +8,7 @@ import {
   addChatMessage,
   applyAIChoices,
 } from '../creationSlice'
+import { selectSettings } from '../../settings/settingsSlice'
 import { sendChatMessage, extractChoicesFromResponse } from '../../../services/llmService'
 import type { LLMMessage, ChatMessage } from '../../../types/creation'
 
@@ -15,6 +16,7 @@ const AIChatAssistant: React.FC = () => {
   const dispatch = useAppDispatch()
   const isChatOpen = useAppSelector(selectIsChatOpen)
   const chatMessages = useAppSelector(selectChatMessages)
+  const settings = useAppSelector(selectSettings)
 
   const [inputText, setInputText] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -66,7 +68,11 @@ const AIChatAssistant: React.FC = () => {
 
     setIsLoading(true)
     try {
-      const response = await sendChatMessage(llmMessages)
+      const response = await sendChatMessage(llmMessages, {
+        provider: settings.llmProvider,
+        apiKey: settings.llmApiKey,
+        model: settings.llmModel || undefined,
+      })
 
       // Add assistant message
       const assistantMsg: ChatMessage = {

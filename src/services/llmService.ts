@@ -61,13 +61,15 @@ export async function sendChatMessage(
 async function callRealProvider(messages: LLMMessage[], config: LLMConfig): Promise<string> {
   switch (config.provider) {
     case 'claude': {
-      const baseUrl = config.baseUrl ?? 'https://api.anthropic.com'
+      // Use Vite proxy in dev to avoid CORS, direct URL otherwise
+      const baseUrl = config.baseUrl ?? '/api/anthropic'
       const response = await fetch(`${baseUrl}/v1/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': config.apiKey!,
           'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: JSON.stringify({
           model: config.model ?? 'claude-sonnet-4-20250514',
@@ -84,7 +86,8 @@ async function callRealProvider(messages: LLMMessage[], config: LLMConfig): Prom
     }
 
     case 'openai': {
-      const baseUrl = config.baseUrl ?? 'https://api.openai.com'
+      // Use Vite proxy in dev to avoid CORS, direct URL otherwise
+      const baseUrl = config.baseUrl ?? '/api/openai'
       const response = await fetch(`${baseUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: {
