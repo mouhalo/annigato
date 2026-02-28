@@ -1,11 +1,14 @@
-// Export centralisé pour le store Redux
+// Export centralise pour le store Redux
 
 // Store et types
 export { store } from './store'
 export type { RootState, AppDispatch } from './store'
 
-// Hooks typés
+// Hooks types
 export { useAppDispatch, useAppSelector } from './hooks'
+
+// Types partages
+export type { Cake, CakeCreation, CakeCategory, Category } from '../types/cake'
 
 // Slices et actions
 export {

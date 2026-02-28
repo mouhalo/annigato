@@ -23,7 +23,7 @@ export default defineConfig({
   build: {
     outDir: 'build',
     sourcemap: true,
-    minify: 'terser',
+    minify: 'esbuild',
     target: 'esnext'
   }
 })
