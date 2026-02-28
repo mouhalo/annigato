@@ -51,6 +51,25 @@ Two creation modes with different step sequences:
 
 Step components live in `src/features/creation/components/`. Options data (themes, flavors, decorations, colors, sizes) in `src/data/creationOptions.ts`.
 
+#### Multi-Generation Preview (3 slots)
+
+The preview step (`PreviewStep.tsx`) offers 3 generation slots. The user generates 3 cake image variants one at a time, then selects their favorite.
+
+**Redux state** (in `creationSlice`):
+- `generatedImages: (string | null)[]` — array of 3 blob URLs (`[null, null, null]` initially)
+- `generatingSlot: number | null` — index of slot currently generating
+- `generationErrors: (string | null)[]` — per-slot errors
+- `selectedImageIndex: number | null` — user's chosen image
+
+**Key actions**: `setGeneratedImage({index, url})`, `setGenerating(slotIndex)`, `setGenerationError({index, error})`, `selectImage(index)`
+
+**UI rules**:
+- Only one slot generates at a time (other "Générer" buttons disabled)
+- "Choix X" buttons stay disabled until all 3 images are generated
+- Selection is visual-only (amber border + check badge), user can change mind
+- "Terminer" button appears only when `selectedImageIndex !== null`
+- Component: `ImageSlot` handles 5 states (empty, generating, generated, selected, error)
+
 ### Services
 
 - `src/services/imageGeneration.ts` — Multi-provider image generation (HuggingFace, Pollinations, placeholder SVG). Includes `buildCakePrompt()` for constructing prompts from user choices.
