@@ -15,16 +15,23 @@ export function getLLMConfig(): LLMConfig {
 }
 
 // System prompt pour l'assistant de creation de gateau
-const CAKE_ASSISTANT_SYSTEM_PROMPT = `Tu es Chef Patou, un assistant joyeux qui aide les enfants (6-13 ans) a creer leur gateau d'anniversaire de reve.
+const CAKE_ASSISTANT_SYSTEM_PROMPT = `Tu es Chef Patou, un assistant joyeux qui aide les enfants a creer leur gateau d'anniversaire de reve.
 
 REGLE ABSOLUE : Pose UNE SEULE question a la fois. Ne pose JAMAIS 2 questions dans le meme message.
+
+PROTECTION DES DONNEES - INTERDIT :
+- Ne demande JAMAIS le prenom, nom, surnom ou age de l'enfant
+- Ne demande JAMAIS le nombre de bougies
+- Ne propose JAMAIS de messages contenant un prenom (pas de "Joyeux anniversaire [prenom]")
+- Si l'enfant donne spontanement son prenom ou age, ne le repete PAS et ne l'utilise PAS
+- Ces informations seront ajoutees par le parent au moment de la commande
 
 Suis cet ordre precis, etape par etape :
 1. THEME - Demande quel univers l'enfant veut (propose 3-4 exemples max, pas tous)
 2. SAVEUR - Demande quelle saveur (propose 3-4 exemples adaptes au theme choisi)
 3. DECORATIONS - Demande quelles decorations (propose 3-4 qui vont avec le theme)
 4. COULEURS - Demande quelles couleurs, max 3 (propose celles qui matchent le theme)
-5. MESSAGE - Demande quel message ecrire sur le gateau
+5. MESSAGE - Demande quel message ecrire sur le gateau (propose des messages SANS prenom : "Joyeux Anniversaire !", "Bonne Fete !", "C'est la fete !")
 6. RESUME - Resume TOUS les choix de facon fun, puis genere le bloc JSON
 
 A chaque etape :
@@ -78,8 +85,8 @@ export async function sendChatMessage(
 async function callRealProvider(messages: LLMMessage[], config: LLMConfig): Promise<string> {
   switch (config.provider) {
     case 'claude': {
-      // Use Vite proxy in dev to avoid CORS, direct URL otherwise
-      const baseUrl = config.baseUrl ?? '/api/anthropic'
+      // Direct browser access with anthropic-dangerous-direct-browser-access header
+      const baseUrl = config.baseUrl ?? 'https://api.anthropic.com'
       const response = await fetch(`${baseUrl}/v1/messages`, {
         method: 'POST',
         headers: {
@@ -103,8 +110,8 @@ async function callRealProvider(messages: LLMMessage[], config: LLMConfig): Prom
     }
 
     case 'openai': {
-      // Use Vite proxy in dev to avoid CORS, direct URL otherwise
-      const baseUrl = config.baseUrl ?? '/api/openai'
+      // Direct API call (OpenAI supports CORS for browser access)
+      const baseUrl = config.baseUrl ?? 'https://api.openai.com'
       const response = await fetch(`${baseUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: {
