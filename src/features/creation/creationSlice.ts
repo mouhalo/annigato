@@ -17,9 +17,10 @@ const initialState: CreationState = {
   selectedColors: [],
   cakeMessage: '',
   aiPrompt: '',
-  generatedImageUrl: null,
-  isGenerating: false,
-  generationError: null,
+  generatedImages: [null, null, null],
+  generatingSlot: null,
+  generationErrors: [null, null, null],
+  selectedImageIndex: null,
   isChatOpen: false,
   chatMessages: [],
 }
@@ -105,22 +106,28 @@ export const creationSlice = createSlice({
       state.aiPrompt = action.payload
     },
 
-    setGeneratedImage: (state, action: PayloadAction<string>) => {
-      state.generatedImageUrl = action.payload
-      state.isGenerating = false
-      state.generationError = null
+    setGeneratedImage: (state, action: PayloadAction<{ index: number; url: string }>) => {
+      const { index, url } = action.payload
+      state.generatedImages[index] = url
+      state.generatingSlot = null
+      state.generationErrors[index] = null
     },
 
-    setGenerating: (state, action: PayloadAction<boolean>) => {
-      state.isGenerating = action.payload
-      if (action.payload) {
-        state.generationError = null
+    setGenerating: (state, action: PayloadAction<number | null>) => {
+      state.generatingSlot = action.payload
+      if (action.payload !== null) {
+        state.generationErrors[action.payload] = null
       }
     },
 
-    setGenerationError: (state, action: PayloadAction<string>) => {
-      state.generationError = action.payload
-      state.isGenerating = false
+    setGenerationError: (state, action: PayloadAction<{ index: number; error: string }>) => {
+      const { index, error } = action.payload
+      state.generationErrors[index] = error
+      state.generatingSlot = null
+    },
+
+    selectImage: (state, action: PayloadAction<number>) => {
+      state.selectedImageIndex = action.payload
     },
 
     toggleChat: (state) => {
@@ -175,6 +182,7 @@ export const {
   setGeneratedImage,
   setGenerating,
   setGenerationError,
+  selectImage,
   toggleChat,
   addChatMessage,
   applyAIChoices,
@@ -187,7 +195,8 @@ export const selectCurrentStep = (state: RootState) => state.creation.currentSte
 export const selectCreationSteps = (state: RootState) => state.creation.steps
 export const selectIsChatOpen = (state: RootState) => state.creation.isChatOpen
 export const selectChatMessages = (state: RootState) => state.creation.chatMessages
-export const selectIsImageGenerating = (state: RootState) => state.creation.isGenerating
-export const selectGeneratedImageUrl = (state: RootState) => state.creation.generatedImageUrl
+export const selectGeneratingSlot = (state: RootState) => state.creation.generatingSlot
+export const selectGeneratedImages = (state: RootState) => state.creation.generatedImages
+export const selectSelectedImageIndex = (state: RootState) => state.creation.selectedImageIndex
 
 export default creationSlice.reducer
