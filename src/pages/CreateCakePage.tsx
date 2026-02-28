@@ -253,7 +253,7 @@ const CreateCakePage: React.FC = () => {
           </button>
         ) : (
           // On the preview (last) step, show a "done" indicator
-          creation.generatedImageUrl && (
+          creation.selectedImageIndex !== null && (
             <button
               onClick={() => navigate('/')}
               className="
