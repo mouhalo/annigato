@@ -1,70 +1,320 @@
-# Getting Started with Create React App
+# 🎂 ANNIGATO - Application de Création de Gâteaux d'Anniversaire
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> **Application web ludique et sécurisée permettant aux enfants de 6-13 ans de concevoir, personnaliser et commander des gâteaux d'anniversaire avec génération d'images par IA.**
 
-## Available Scripts
+![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D20.16.0-green.svg)
+![React](https://img.shields.io/badge/react-18.2.0-61dafb.svg)
+![TypeScript](https://img.shields.io/badge/typescript-5.8.3-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-In the project directory, you can run:
+## 📋 Table des Matières
 
-### `npm start`
+- [Vision du Projet](#-vision-du-projet)
+- [État Actuel](#-état-actuel)
+- [Choix Technologiques](#-choix-technologiques)
+- [Installation](#-installation)
+- [Architecture](#-architecture)
+- [Fonctionnalités](#-fonctionnalités)
+- [Roadmap](#-roadmap)
+- [Contribution](#-contribution)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🎯 Vision du Projet
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Annigato est une plateforme innovante qui révolutionne la façon dont les enfants commandent leurs gâteaux d'anniversaire. En combinant une interface ludique adaptée à l'âge, la puissance de l'IA générative et un système de contrôle parental robuste, nous créons une expérience magique et sécurisée.
 
-### `npm test`
+### Objectifs Principaux
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. **Simplicité** : Interface intuitive adaptée aux enfants avec deux modes (6-9 ans et 10-13 ans)
+2. **Sécurité** : Contrôle parental intégré à chaque étape critique
+3. **Créativité** : Outils de personnalisation stimulants avec génération d'images IA
+4. **Accessibilité** : Application 100% responsive (mobile-first)
 
-### `npm run build`
+## 📊 État Actuel
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### ✅ Réalisations (Phase 0 - Configuration)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- [x] **Migration de Create React App vers Vite**
+  - Performance de build améliorée (démarrage < 1s)
+  - Hot Module Replacement (HMR) instantané
+  - Configuration TypeScript optimisée
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- [x] **Architecture Redux moderne**
+  - Redux Toolkit configuré avec 3 slices principaux
+  - Hooks typés (`useAppSelector`, `useAppDispatch`)
+  - Structure modulaire par feature
 
-### `npm run eject`
+- [x] **Interface Responsive Mobile-First**
+  - Homepage entièrement responsive
+  - Breakpoints cohérents (sm: 640px, md: 768px, lg: 1024px)
+  - Touch-friendly avec zones de tap ≥ 44px
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- [x] **Système de Design**
+  - TailwindCSS v4 intégré
+  - Animations personnalisées
+  - Palette de couleurs enfantine
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 🚧 En Cours
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- [ ] Configuration PostgreSQL + Prisma
+- [ ] Design system complet (composants de base)
+- [ ] Tests unitaires et E2E
+- [ ] CI/CD avec GitHub Actions
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🛠️ Choix Technologiques
 
-## Learn More
+### Frontend
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+| Technologie | Version | Justification |
+|------------|---------|---------------|
+| **React** | 18.2.0 | Framework moderne avec Suspense et Concurrent features |
+| **TypeScript** | 5.8.3 | Type-safety essentielle pour un projet d'équipe |
+| **Vite** | 7.0.3 | Build ultra-rapide et meilleure DX que CRA |
+| **Redux Toolkit** | 2.8.2 | State management simplifié avec best practices intégrées |
+| **TailwindCSS** | 4.1.11 | Développement rapide avec classes utilitaires |
+| **React Router** | 6.30.1 | Routing moderne avec support des loaders |
+| **Lucide React** | 0.525.0 | Icônes modernes et légères |
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Backend (Prévu)
 
-### Code Splitting
+| Technologie | Justification |
+|------------|---------------|
+| **Node.js + Express** | API REST performante et écosystème mature |
+| **Prisma ORM** | Type-safety et migrations automatiques |
+| **PostgreSQL** | Base relationnelle robuste pour données structurées |
+| **JWT** | Authentification stateless sécurisée |
+| **Bull Queue** | Gestion asynchrone pour génération d'images |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### APIs Externes
 
-### Analyzing the Bundle Size
+- **Pollinations.ai** : Génération d'images de gâteaux par IA
+- **WhatsApp Business API** : Envoi d'invitations
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🚀 Installation
 
-### Making a Progressive Web App
+### Prérequis
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- Node.js >= 20.16.0
+- npm >= 10.8.1
+- Git
 
-### Advanced Configuration
+### Installation du Projet
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```bash
+# Cloner le repository
+git clone https://github.com/votre-username/annigato.git
+cd annigato
 
-### Deployment
+# Installer les dépendances
+npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+# Copier les variables d'environnement
+cp .env.example .env
 
-### `npm run build` fails to minify
+# Lancer en développement
+npm run dev
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+L'application sera accessible sur http://localhost:3000
+
+### Scripts Disponibles
+
+```bash
+npm run dev          # Lancer le serveur de développement
+npm run build        # Build de production
+npm run preview      # Prévisualiser le build
+npm run lint         # Vérifier le TypeScript
+```
+
+## 🏗️ Architecture
+
+### Structure des Dossiers
+
+```
+annigato/
+├── src/
+│   ├── components/          # Composants réutilisables
+│   │   └── ui/             # Composants UI de base
+│   ├── features/           # Modules métier (Redux slices)
+│   │   ├── auth/          # Authentification parent/enfant
+│   │   ├── cart/          # Gestion du panier
+│   │   └── cakes/         # Catalogue et créations
+│   ├── pages/             # Pages de l'application
+│   │   ├── AnnigatoHomePage.tsx
+│   │   └── EspaceParentPage.tsx
+│   ├── hooks/             # Custom hooks
+│   ├── store/             # Configuration Redux
+│   │   ├── store.ts       # Store principal
+│   │   ├── hooks.ts       # Hooks typés
+│   │   └── index.ts       # Exports centralisés
+│   ├── services/          # Services API
+│   ├── styles/            # Styles globaux
+│   └── utils/             # Utilitaires
+├── server/                # Backend Express (à venir)
+├── prisma/                # Schémas base de données
+├── public/                # Assets statiques
+└── docs/                  # Documentation projet
+```
+
+### Architecture Redux
+
+```typescript
+// Structure du State
+{
+  auth: {
+    user: User | null,
+    activeChild: ChildProfile | null,
+    isAuthenticated: boolean
+  },
+  cart: {
+    items: CartCake[],
+    totalAmount: number,
+    isOpen: boolean
+  },
+  cakes: {
+    catalog: Cake[],
+    userCreations: CakeCreation[],
+    currentCreation: CakeCreation | null
+  }
+}
+```
+
+## 🎨 Fonctionnalités
+
+### Implémentées
+
+- **Page d'accueil responsive**
+  - Carrousel de gâteaux animé
+  - Filtrage par catégorie
+  - Système de likes
+  - Navigation adaptative mobile/desktop
+
+- **Gestion d'état globale**
+  - Panier avec toggle
+  - Favoris persistants
+  - Sélection de catégorie
+
+### En Développement
+
+- **Module de Création** (Mode guidé 6-9 ans)
+  - [ ] Choix de la base (forme + taille)
+  - [ ] Sélection des saveurs
+  - [ ] Décorations par glisser-déposer
+  - [ ] Génération IA
+
+- **Espace Parent**
+  - [ ] Dashboard des commandes
+  - [ ] Contrôles de sécurité
+  - [ ] Gestion des profils enfants
+
+## 📅 Roadmap
+
+### Phase 1 - Fondations (En cours)
+- Configuration complète de l'environnement ✅
+- Design system et composants de base 🚧
+- Architecture backend
+- Tests unitaires
+
+### Phase 2 - Module Création (À venir)
+- Interface de création guidée
+- Intégration Pollinations.ai
+- Système de sauvegarde
+- Preview en temps réel
+
+### Phase 3 - Module Commande
+- Flux de commande sécurisé
+- Vérification parentale
+- Notifications email
+
+### Phase 4 - Module Social
+- Invitations WhatsApp
+- Partage de créations
+- Galerie communautaire
+
+### Phase 5 - Optimisation UX
+- Mode 6-8 ans complet
+- Tutoriels interactifs
+- Gamification
+
+### Phase 6 - Production
+- Déploiement cloud
+- Monitoring
+- Support multilingue
+
+## 🔧 Configuration Avancée
+
+### Variables d'Environnement
+
+```env
+# Application
+VITE_APP_TITLE=Annigato
+VITE_API_URL=http://localhost:5000/api
+
+# APIs Externes
+VITE_POLLINATIONS_API_URL=https://image.pollinations.ai/prompt/
+VITE_WHATSAPP_API_KEY=your_key
+
+# Base de données
+DATABASE_URL=postgresql://user:password@localhost:5432/annigato_db
+```
+
+### Conventions de Code
+
+```typescript
+// Composants : PascalCase avec interface Props
+interface ButtonProps {
+  variant: 'primary' | 'secondary'
+  size?: 'small' | 'medium' | 'large'
+}
+
+export const Button: FC<ButtonProps> = ({ variant, size = 'medium' }) => {
+  // Implementation
+}
+
+// Commits : Conventional Commits
+feat: ajouter module de création
+fix: corriger responsive mobile
+docs: mettre à jour README
+```
+
+## 🤝 Contribution
+
+### Workflow Git
+
+1. Créer une branche depuis `develop`
+```bash
+git checkout -b feature/nom-feature
+```
+
+2. Commiter avec message conventionnel
+```bash
+git commit -m "feat: description de la feature"
+```
+
+3. Push et créer une PR vers `develop`
+
+### Standards de Qualité
+
+- Coverage de tests > 80%
+- Pas de `any` TypeScript
+- Composants documentés
+- Code review obligatoire
+
+## 📞 Support & Contact
+
+- **Documentation** : [docs/](./docs)
+- **Issues** : [GitHub Issues](https://github.com/votre-username/annigato/issues)
+- **Email** : contact@annigato.com
+
+## 📄 License
+
+Ce projet est sous license MIT. Voir le fichier [LICENSE](./LICENSE) pour plus de détails.
+
+---
+
+<div align="center">
+  <p>Fait avec ❤️ pour les enfants et leurs anniversaires magiques</p>
+  <p>
+    <a href="#-annigato---application-de-création-de-gâteaux-danniversaire">Retour en haut ↑</a>
+  </p>
+</div>
